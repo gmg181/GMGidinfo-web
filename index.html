@@ -1,53 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Like Website</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GMG WEBSITE</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      color: white;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      font-size: 48px;
+      margin-bottom: 10px;
+      color: #ffd700;
+    }
+    h2 {
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+    input, button {
+      padding: 12px 20px;
+      margin: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+    }
+    input {
+      width: 250px;
+    }
+    button {
+      background-color: #ff4081;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #e91e63;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 20px;
+    }
+    .info-card {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-    <!-- Header Section -->
-    <header>
-        <div class="logo">
-            <h1>MyGitHub</h1>
-        </div>
-        <nav>
-            <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Explore</a></li>
-                <li><a href="#">Pricing</a></li>
-                <li><a href="#">Sign In</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <h2>Welcome to MyGitHub</h2>
-        <p>Collaborate, share, and manage your code with ease!</p>
-        <a href="#" class="cta">Get Started</a>
-    </section>
+  <h1>GMG WEBSITE</h1>
+  <h2>Free Fire Player Info Finder</h2>
 
-    <!-- Features Section -->
-    <section class="features">
-        <div class="feature">
-            <h3>Version Control</h3>
-            <p>Track your code changes and manage multiple versions with ease.</p>
-        </div>
-        <div class="feature">
-            <h3>Collaboration</h3>
-            <p>Work with others seamlessly, review changes, and track progress.</p>
-        </div>
-        <div class="feature">
-            <h3>Security</h3>
-            <p>Keep your code safe with robust security features.</p>
-        </div>
-    </section>
+  <input type="text" id="uid" placeholder="Enter UID">
+  <input type="text" id="region" placeholder="Enter Region (e.g., IN)">
+  <br>
+  <button onclick="getPlayerInfo()">Search</button>
 
-    <!-- Footer Section -->
-    <footer>
-        <p>&copy; 2025 MyGitHub, Inc. All rights reserved.</p>
-    </footer>
+  <div id="result"></div>
+
+  <script>
+    async function getPlayerInfo() {
+      const uid = document.getElementById('uid').value.trim();
+      const region = document.getElementById('region').value.trim();
+      const resultDiv = document.getElementById('result');
+      
+      if (!uid || !region) {
+        alert('Please enter both UID and Region');
+        return;
+      }
+
+      resultDiv.innerHTML = "Fetching data...";
+
+      const url = `https://aditya-info.onrender.com/player-info?uid=${uid}&region=${region}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        console.log("API Response JSON:", data);
+
+        const name = data.basicInfo?.nickname || "Not Found";
+        const level = data.basicInfo?.level || "Not Found";
+        const likes = data.basicInfo?.liked || "Not Found";
+        const brRankPoints = data.basicInfo?.rankingPoints || "Not Found";
+        const csRankPoints = data.basicInfo?.csRankingPoints || "Not Found";
+        const region = data.basicInfo?.region || "Not Found";
+        const avatarId = data.profileInfo?.avatarId || "Not Found";
+        const guildName = data.clanBasicInfo?.clanName || "No Guild";
+
+        const avatarUrl = `https://cdn.garena.com/ff/download/avatars/${avatarId}.png`;
+
+        resultDiv.innerHTML = `
+          <div class="info-card">
+            <img src="${avatarUrl}" alt="Avatar" width="100" height="100" style="border-radius:50%;"><br><br>
+            <h2>${name}</h2>
+            <p><strong>Level:</strong> ${level}</p>
+            <p><strong>Likes:</strong> ${likes}</p>
+            <p><strong>BR Rank Points:</strong> ${brRankPoints}</p>
+            <p><strong>CS Rank Points:</strong> ${csRankPoints}</p>
+            <p><strong>Region:</strong> ${region}</p>
+            <p><strong>Guild:</strong> ${guildName}</p>
+          </div>
+        `;
+        
+      } catch (error) {
+        console.error(error);
+        resultDiv.innerHTML = `<p style="color:red;">Error fetching player info.</p>`;
+      }
+    }
+  </script>
+
 </body>
 </html>
