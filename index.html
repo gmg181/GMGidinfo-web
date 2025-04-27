@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Fire Player Info Finder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      color: white;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      margin-bottom: 30px;
+      font-size: 36px;
+    }
+    input, button {
+      padding: 12px 20px;
+      margin: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+    }
+    input {
+      width: 250px;
+    }
+    button {
+      background-color: #ff4081;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #e91e63;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 20px;
+    }
+    .info-card {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Free Fire Player Info Finder</h1>
+
+  <input type="text" id="uid" placeholder="Enter UID">
+  <input type="text" id="region" placeholder="Enter Region (e.g., IN)">
+  <br>
+  <button onclick="getPlayerInfo()">Search</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function getPlayerInfo() {
+      const uid = document.getElementById('uid').value.trim();
+      const region = document.getElementById('region').value.trim();
+      const resultDiv = document.getElementById('result');
+      
+      if (!uid || !region) {
+        alert('Please enter both UID and Region');
+        return;
+      }
+
+      resultDiv.innerHTML = "Fetching data...";
+
+      const url = `https://aditya-info.onrender.com/player-info?uid=${uid}&region=${region}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.error) {
+          resultDiv.innerHTML = `<p style="color:red;">${data.error}</p>`;
+        } else {
+          resultDiv.innerHTML = `
+            <div class="info-card">
+              <h2>${data.nickname}</h2>
+              <p><strong>Level:</strong> ${data.level}</p>
+              <p><strong>Likes:</strong> ${data.likes}</p>
+              <p><strong>Rank:</strong> ${data.rank}</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<p style="color:red;">Error fetching player info.</p>`;
+      }
+    }
+  </script>
+
+</body>
+</html>
