@@ -23,18 +23,21 @@
       border: 3px solid white;
       border-radius: 10px;
     }
+    #result p {
+      color: red;
+    }
   </style>
 </head>
 <body>
   <h1>GMG WEBSITE</h1>
   <p>Enter UID and Region to get Free Fire Outfit Info</p>
 
-  <input type="text" id="uid" placeholder="Enter UID">
+  <input type="text" id="uid" placeholder="Enter UID" pattern="\d*" title="UID must be numeric">
   <select id="region">
     <option value="ind">IND (India)</option>
     <option value="br">BR (Brazil)</option>
     <option value="th">TH (Thailand)</option>
-    <!-- aur regions aap add kar sakte ho -->
+    <!-- Add more regions as needed -->
   </select>
   <button onclick="fetchOutfit()">Get Outfit</button>
 
@@ -46,8 +49,8 @@
       const region = document.getElementById("region").value;
       const resultDiv = document.getElementById("result");
 
-      if (!uid) {
-        alert("Please enter a UID.");
+      if (!uid || isNaN(uid)) {
+        alert("Please enter a valid numeric UID.");
         return;
       }
 
@@ -57,7 +60,7 @@
 
       fetch(url)
         .then(res => {
-          if (!res.ok) throw new Error("Failed to fetch image.");
+          if (!res.ok) throw new Error("Failed to fetch image. Please check UID or region.");
           return res.blob();
         })
         .then(blob => {
@@ -65,7 +68,7 @@
           resultDiv.innerHTML = `<img src="${imgURL}" alt="Outfit Image">`;
         })
         .catch(err => {
-          resultDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+          resultDiv.innerHTML = `<p>Error: ${err.message}</p>`;
         });
     }
   </script>
