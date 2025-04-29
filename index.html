@@ -60,7 +60,7 @@
 
       fetch(url)
         .then(res => {
-          if (!res.ok) throw new Error("Failed to fetch image. Please check UID or region.");
+          if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
           return res.blob();
         })
         .then(blob => {
@@ -68,6 +68,7 @@
           resultDiv.innerHTML = `<img src="${imgURL}" alt="Outfit Image">`;
         })
         .catch(err => {
+          console.error("Fetch error:", err);
           resultDiv.innerHTML = `<p>Error: ${err.message}</p>`;
         });
     }
