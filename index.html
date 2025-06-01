@@ -1,32 +1,53 @@
+<!-- chat.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Craftland Map Share</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Chat</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Free Fire Craftland Map Share</h1>
-    <p>Share and explore user-created Craftland maps!</p>
-  </header>
+  <h2>Chat with <span id="chatWith">PlayerName</span></h2>
+  <div id="chatBox" style="height:300px; overflow-y:scroll; border:1px solid #ccc;"></div>
+  <input type="text" id="msgInput" placeholder="Type your message...">
+  <button onclick="sendMessage()">Send</button>
 
-  <section class="form-section">
-    <h2>Share Your Map</h2>
-    <input type="text" id="uid" placeholder="Enter your Free Fire UID" required>
-    <input type="text" id="mapCode" placeholder="Enter your Map Code" required>
-    <button onclick="shareMap()">Share</button>
-  </section>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-  <section class="map-list-section">
-    <h2>Shared Maps</h2>
-    <ul id="mapList"></ul>
-  </section>
+    const currentUID = "user123"; // यह यूज़र की UID है (लॉगिन के बाद सेट करें)
+    const chattingWithUID = "user456"; // जिस से चैट कर रहे हैं
 
-  <footer>
-    <p>&copy; 2025 Free Fire Craftland Map Share (Fan Made)</p>
-  </footer>
+    const chatRoomId = currentUID < chattingWithUID 
+                       ? currentUID + "_" + chattingWithUID 
+                       : chattingWithUID + "_" + currentUID;
 
-  <script src="script.js"></script>
+    function sendMessage() {
+      const msg = document.getElementById("msgInput").value;
+      db.ref("chats/" + chatRoomId).push({
+        sender: currentUID,
+        message: msg,
+        timestamp: Date.now()
+      });
+      document.getElementById("msgInput").value = "";
+    }
+
+    db.ref("chats/" + chatRoomId).on("child_added", function(snapshot) {
+      const data = snapshot.val();
+      const msgElem = document.createElement("div");
+      msgElem.innerHTML = `<b>${data.sender}:</b> ${data.message}`;
+      document.getElementById("chatBox").appendChild(msgElem);
+    });
+  </script>
 </body>
 </html>
