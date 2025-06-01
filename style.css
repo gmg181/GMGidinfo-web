@@ -1,48 +1,29 @@
-body {
-  margin: 0;
-  font-family: 'Arial', sans-serif;
-  background: linear-gradient(#0f0f0f, #1a1a1a);
-  color: white;
-  text-align: center;
+let maps = [];
+
+function shareMap() {
+  const uid = document.getElementById('uid').value.trim();
+  const code = document.getElementById('mapCode').value.trim();
+
+  if (!uid || !code) {
+    alert("Please fill in both UID and Map Code.");
+    return;
+  }
+
+  const map = { uid, code };
+  maps.push(map);
+
+  displayMaps();
+  document.getElementById('uid').value = '';
+  document.getElementById('mapCode').value = '';
 }
 
-header {
-  padding: 2rem;
-  background-color: #ff5c33;
-  color: white;
-}
+function displayMaps() {
+  const list = document.getElementById('mapList');
+  list.innerHTML = '';
 
-.banner {
-  width: 90%;
-  max-width: 600px;
-  margin: 20px auto;
-  display: block;
-  border-radius: 12px;
-}
-
-input[type="text"] {
-  padding: 10px;
-  width: 250px;
-  border: none;
-  border-radius: 5px;
-}
-
-button {
-  padding: 10px 20px;
-  background-color: #ff5c33;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  margin-left: 10px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #e64a19;
-}
-
-footer {
-  margin-top: 50px;
-  padding: 10px;
-  background-color: #111;
+  maps.forEach((map, index) => {
+    const item = document.createElement('li');
+    item.innerHTML = `<strong>UID:</strong> ${map.uid} <br> <strong>Map Code:</strong> ${map.code}`;
+    list.appendChild(item);
+  });
 }
