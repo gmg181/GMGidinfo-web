@@ -2,75 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>GMG WEBSITE - Free Fire Outfit</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: white;
-      text-align: center;
-      padding: 40px;
-    }
-    input, select, button {
-      padding: 10px;
-      margin: 10px;
-      font-size: 16px;
-    }
-    img {
-      margin-top: 20px;
-      max-width: 100%;
-      height: auto;
-      border: 3px solid white;
-      border-radius: 10px;
-    }
-    #result p {
-      color: red;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Fire Craftaland</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>GMG WEBSITE</h1>
-  <p>Enter UID and Region to get Free Fire Outfit Info</p>
+  <header>
+    <h1>Free Fire Craftaland</h1>
+    <p>Create and Share Your Own Maps</p>
+  </header>
 
-  <input type="text" id="uid" placeholder="Enter UID" pattern="\d*" title="UID must be numeric">
-  <select id="region">
-    <option value="ind">IND (India)</option>
-    <option value="br">BR (Brazil)</option>
-    <option value="th">TH (Thailand)</option>
-  </select>
-  <button onclick="fetchOutfit()">Get Outfit</button>
+  <section class="main-content">
+    <img src="https://example.com/craftland-banner.jpg" alt="Craftland Map" class="banner">
+    
+    <h2>Enter UID to Get Map Access</h2>
+    <input type="text" placeholder="Enter Free Fire UID" id="uid-input">
+    <button onclick="submitUID()">Submit</button>
+    
+    <div id="result"></div>
+  </section>
 
-  <div id="result"></div>
+  <footer>
+    <p>&copy; 2025 Free Fire Craftaland (Fan Made)</p>
+  </footer>
 
-  <script>
-    function fetchOutfit() {
-      const uid = document.getElementById("uid").value.trim();
-      const region = document.getElementById("region").value;
-      const resultDiv = document.getElementById("result");
-
-      if (!uid || isNaN(uid)) {
-        alert("Please enter a valid numeric UID.");
-        return;
-      }
-
-      const url = `https://gmg-outfit-img-url.vercel.app/Gmg-outfit?uid=${uid}&region=${region}&key=GMGFF912`;
-
-      resultDiv.innerHTML = "Loading...";
-
-      fetch(url)
-        .then(res => {
-          if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-          return res.blob();
-        })
-        .then(blob => {
-          const imgURL = URL.createObjectURL(blob);
-          resultDiv.innerHTML = `<img src="${imgURL}" alt="Outfit Image">`;
-        })
-        .catch(err => {
-          console.error("Fetch error:", err);
-          resultDiv.innerHTML = `<p>Error: ${err.message}</p>`;
-        });
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
