@@ -2,28 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Free Fire Craftaland</title>
+  <title>Craftland Map Share</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>Free Fire Craftaland</h1>
-    <p>Create and Share Your Own Maps</p>
+    <h1>Free Fire Craftland Map Share</h1>
+    <p>Share and explore user-created Craftland maps!</p>
   </header>
 
-  <section class="main-content">
-    <img src="https://example.com/craftland-banner.jpg" alt="Craftland Map" class="banner">
-    
-    <h2>Enter UID to Get Map Access</h2>
-    <input type="text" placeholder="Enter Free Fire UID" id="uid-input">
-    <button onclick="submitUID()">Submit</button>
-    
-    <div id="result"></div>
+  <section class="form-section">
+    <h2>Share Your Map</h2>
+    <input type="text" id="uid" placeholder="Enter your Free Fire UID" required>
+    <input type="text" id="mapCode" placeholder="Enter your Map Code" required>
+    <button onclick="shareMap()">Share</button>
+  </section>
+
+  <section class="map-list-section">
+    <h2>Shared Maps</h2>
+    <ul id="mapList"></ul>
   </section>
 
   <footer>
-    <p>&copy; 2025 Free Fire Craftaland (Fan Made)</p>
+    <p>&copy; 2025 Free Fire Craftland Map Share (Fan Made)</p>
   </footer>
 
   <script src="script.js"></script>
