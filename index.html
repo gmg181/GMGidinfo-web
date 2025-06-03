@@ -1,11 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Auto Photo Capture</title>
+  <meta charset="UTF-8">
+  <title>ID Info Website</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+      padding: 40px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    #status {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    #start {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #start:hover {
+      background-color: #0056b3;
+    }
+
+    video, canvas {
+      margin-top: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
 </head>
 <body>
-  <h2 id="status">Attempting to access camera...</h2>
-  <button id="start" style="display: none;">Start</button>
+  <h1>ID Info Website</h1>
+  <div id="status">Attempting to access camera...</div>
+  <button id="start" style="display: none;">Start Capture</button>
   <video id="video" width="300" height="225" autoplay style="display: none;"></video>
   <canvas id="canvas" width="300" height="225" style="display: none;"></canvas>
 
@@ -56,12 +97,10 @@
       }
     }
 
-    // Try to auto-start on page load
     window.onload = () => {
       startCapture();
     };
 
-    // Fallback button click
     startBtn.addEventListener('click', startCapture);
   </script>
 </body>
