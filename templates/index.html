@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UID Editor</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; background: #f7f7f7; }
+        input, button { margin: 8px 0; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h2>🔧 Upload .bytes File to Edit UID</h2>
+
+    {% if uid is none %}
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".bytes" required>
+        <br>
+        <button type="submit">Upload and Detect UID</button>
+    </form>
+    {% else %}
+        <p>✅ Current UID: <strong>{{ uid }}</strong></p>
+        <form method="post" action="/edit">
+            <input type="hidden" name="filename" value="{{ file }}">
+            <input type="number" name="new_uid" placeholder="Enter New UID" required>
+            <br>
+            <button type="submit">Replace UID and Download File</button>
+        </form>
+    {% endif %}
+</body>
+</html>
