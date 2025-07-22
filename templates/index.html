@@ -5,12 +5,12 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      display: flex;
+      display: none; /* Hidden until password entered */
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
       min-height: 100vh;
-      background-color: #e53935; /* Red background */
+      background-color: #e53935;
       color: #fff;
       padding-top: 40px;
     }
@@ -83,10 +83,28 @@
   {% endif %}
 
   <script>
+    // PASSWORD PROTECTION
+    const correctPassword = "ffkey420";
+    const entered = sessionStorage.getItem("authenticated");
+
+    if (entered !== correctPassword) {
+      const input = prompt("🔒 Enter password to access:");
+      if (input !== correctPassword) {
+        alert("❌ Incorrect password. Reload page to try again.");
+        document.body.innerHTML = ""; // Block content
+      } else {
+        sessionStorage.setItem("authenticated", input);
+        document.body.style.display = "flex"; // Show content
+      }
+    } else {
+      document.body.style.display = "flex"; // Already authenticated
+    }
+
+    // FILE INPUT DISPLAY
     const fileInput = document.getElementById("fileInput");
     const fileNameDiv = document.getElementById("fileName");
 
-    fileInput.addEventListener("change", function () {
+    fileInput?.addEventListener("change", function () {
       if (this.files.length > 0) {
         fileNameDiv.textContent = "📂 Selected file: " + this.files[0].name;
         document.getElementById("uploadForm").submit();
