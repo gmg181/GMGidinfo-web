@@ -5,28 +5,57 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #f9f9f9;
     }
-    input, button {
-      padding: 8px;
-      margin: 5px 0;
+
+    h2, h3 {
+      text-align: center;
+    }
+
+    form {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    input[type="file"],
+    input[type="number"],
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    code {
+      background-color: #eee;
+      padding: 2px 6px;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
-  <h2>📂 Upload a .bytes File</h2>
+  <h2>🔧 Free Fire UID Editor</h2>
 
   <form id="uploadForm" method="POST" enctype="multipart/form-data">
     <input type="file" name="file" id="fileInput" accept=".bytes" required>
   </form>
 
   {% if uid %}
-    <h3>✅ Found UID: <code>{{ uid }}</code></h3>
     <form method="POST" action="/edit">
+      <h3>✅ Found UID: <code>{{ uid }}</code></h3>
       <input type="hidden" name="filename" value="{{ filename }}">
-      <label for="new_uid">✏️ Enter New UID:</label><br>
-      <input type="number" name="new_uid" placeholder="Enter new UID" required><br>
-      <button type="submit">💾 Replace & Download Updated File</button>
+      <input type="number" name="new_uid" value="{{ uid }}" required>
+      <button type="submit">🔁 Replace & Download</button>
     </form>
   {% endif %}
 
