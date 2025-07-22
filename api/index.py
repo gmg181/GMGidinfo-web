@@ -27,18 +27,17 @@ def encode_varint(uid: int) -> str:
     return result.hex().upper()
 
 @app.route("/", methods=["GET", "POST"])
-def main():
+def index():
     if request.method == "POST":
-        file = request.files["file"]
-        if not file.filename.endswith(".bytes"):
-            return "Invalid file format"
+        file = request.files.get("file")
+        new_uid = int(request.form.get("new_uid"))
 
         content = bytearray(file.read())
-
         pattern = b'\x08\xb5\x01\x18\x01\x38'
         index = content.find(pattern)
+
         if index == -1:
-            return "Pattern not found."
+            return "❌ Pattern not found."
 
         varint_start = index + len(pattern)
         varint = bytearray()
@@ -48,28 +47,25 @@ def main():
                 break
 
         old_len = len(varint)
-        uid = decode_varint(binascii.hexlify(varint).decode())
-
-        new_uid = int(request.form["new_uid"])
         new_varint = bytes.fromhex(encode_varint(new_uid))
-
         content[varint_start:varint_start+old_len] = new_varint
 
         updated_path = "/tmp/updated.bytes"
         with open(updated_path, "wb") as f:
             f.write(content)
 
-        return send_file(updated_path, as_attachment=True)
+        return send_file(updated_path, as_attachment=True, download_name="updated.bytes")
 
     return render_template_string("""
-        <h2>Upload .bytes File</h2>
-        <form method="post" enctype="multipart/form-data">
-            <input type="file" name="file" required><br><br>
-            <input type="number" name="new_uid" placeholder="New UID" required><br><br>
+        <h2>Upload .bytes File to Replace UID</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".bytes" required><br><br>
+            <input type="number" name="new_uid" placeholder="Enter New UID" required><br><br>
             <button type="submit">Upload & Replace UID</button>
         </form>
     """)
 
-# Required for Vercel handler
+# Vercel Python serverless entrypoint
 def handler(request, response):
-    return app(request.environ, response.start_response)
+    return app.wsgi_app(request.environ, response.start_response)
+    
