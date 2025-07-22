@@ -2,21 +2,40 @@
 <html>
 <head>
   <title>UID Editor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px 0;
+    }
+  </style>
 </head>
 <body>
-  <h2>Upload a .bytes File</h2>
-  <form method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" required>
-    <button type="submit">Upload</button>
+  <h2>📂 Upload a .bytes File</h2>
+
+  <form id="uploadForm" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" id="fileInput" accept=".bytes" required>
   </form>
 
   {% if uid %}
-    <h3>Found UID: {{ uid }}</h3>
+    <h3>✅ Found UID: <code>{{ uid }}</code></h3>
     <form method="POST" action="/edit">
       <input type="hidden" name="filename" value="{{ filename }}">
-      <input type="number" name="new_uid" placeholder="Enter new UID" required>
-      <button type="submit">Replace UID & Download</button>
+      <label for="new_uid">✏️ Enter New UID:</label><br>
+      <input type="number" name="new_uid" placeholder="Enter new UID" required><br>
+      <button type="submit">💾 Replace & Download Updated File</button>
     </form>
   {% endif %}
+
+  <script>
+    document.getElementById("fileInput").addEventListener("change", function () {
+      if (this.files.length > 0) {
+        document.getElementById("uploadForm").submit();
+      }
+    });
+  </script>
 </body>
 </html>
