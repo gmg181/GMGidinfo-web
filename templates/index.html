@@ -1,170 +1,126 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>UID Changer by GMG</title>
+  <title>Craftland UID Editor</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
+    body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #c62828;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+      min-height: 100vh;
     }
 
-    .container {
-      background: #ffffff;
-      width: 500px;
+    #password-screen {
+      background: #fff;
+      width: 90%;
+      max-width: 500px;
       height: 600px;
-      padding: 30px 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-      text-align: center;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      padding: 40px 30px;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
+      align-items: center;
+      justify-content: center;
     }
 
-    h1 {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 20px;
+    #password-screen h2 {
+      font-size: 28px;
+      margin-bottom: 30px;
       color: #333;
     }
 
-    label {
-      font-weight: bold;
-      color: #444;
-      margin-top: 12px;
-      display: block;
+    #password-input {
+      width: 100%;
+      padding: 15px;
       font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      background-color: #f7f7f7;
     }
 
-    .custom-file-upload {
-      display: inline-block;
-      padding: 12px 15px;
-      background-color: #eee;
-      border-radius: 6px;
-      border: 2px dashed #ccc;
-      cursor: pointer;
-      margin-top: 10px;
+    #submit-btn {
       width: 100%;
-      font-size: 15px;
+      padding: 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background-color: #3f51b5;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #submit-btn:hover {
+      background-color: #2c3faa;
+    }
+
+    #main-content {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+      color: white;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 16px;
+      margin-bottom: 20px;
     }
 
     input[type="file"] {
-      display: none;
-    }
-
-    .filename-display {
-      font-size: 14px;
-      color: #555;
-      margin-top: 10px;
-      word-wrap: break-word;
-    }
-
-    input[type="number"], input[type="text"] {
-      width: 100%;
-      padding: 12px;
-      margin-top: 14px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #2196F3;
-      border: none;
-      color: white;
-      font-size: 16px;
-      margin-top: 18px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #1976D2;
-    }
-
-    .footer {
-      margin-top: auto;
-      font-size: 12px;
-      color: #888;
-    }
-
-    .logo {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: url('https://i.ibb.co/ZKnPKgf/mickey.png') no-repeat center;
-      background-size: contain;
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="logo"></div>
 
-  <div class="container">
-    <h1>UID Changer by GMG</h1>
+  <div id="password-screen">
+    <h2>Password Required</h2>
+    <input type="password" id="password-input" placeholder="Enter your password">
+    <button id="submit-btn" onclick="checkPassword()">Continue</button>
+  </div>
 
-    <form id="uploadForm" method="POST" enctype="multipart/form-data">
-      <label>Upload Map File</label>
-      <label class="custom-file-upload">
-        📂 Choose File
-        <input type="file" name="file" id="fileInput" accept=".bytes" required>
-      </label>
-      <div id="fileName" class="filename-display"></div>
-    </form>
-
-    {% if uid %}
-    <form method="POST" action="/edit">
-      <label>UID in Map File:</label>
-      <input type="hidden" name="filename" value="{{ filename }}">
-      <input type="number" name="new_uid" value="{{ uid }}" required>
-      <input type="number" name="slot" min="1" max="99" required placeholder="Slot Number (1-9)">
-      <button type="submit">Download</button>
-    </form>
-    {% endif %}
-
-    <div class="footer">Craftland UID Editor by GMG</div>
+  <div id="main-content">
+    <h1>CRAFTLAND MAP FILE UID EDIT</h1>
+    <p>EDIT BY GMG</p>
+    <input type="file" id="fileInput">
+    <button onclick="handleFile()">Upload & Edit</button>
   </div>
 
   <script>
     const correctPassword = "ffkey420";
-    const entered = sessionStorage.getItem("authenticated");
 
-    if (entered !== correctPassword) {
-      const input = prompt("🔒 Enter password to access:");
-      if (input !== correctPassword) {
-        alert("❌ Incorrect password. Reload page to try again.");
-        document.body.innerHTML = "";
+    function checkPassword() {
+      const entered = document.getElementById("password-input").value;
+      if (entered === correctPassword) {
+        document.getElementById("password-screen").style.display = "none";
+        document.getElementById("main-content").style.display = "flex";
       } else {
-        sessionStorage.setItem("authenticated", input);
-        document.body.style.display = "flex";
+        alert("❌ Incorrect password");
       }
     }
 
-    const fileInput = document.getElementById("fileInput");
-    const fileNameDiv = document.getElementById("fileName");
-
-    fileInput?.addEventListener("change", function () {
-      if (this.files.length > 0) {
-        fileNameDiv.textContent = "📂 " + this.files[0].name;
-        document.getElementById("uploadForm").submit();
+    function handleFile() {
+      const file = document.getElementById("fileInput").files[0];
+      if (file) {
+        alert("✅ File uploaded: " + file.name);
+        // You can process the file here (hex edit, upload, etc.)
+      } else {
+        alert("⚠️ Please choose a file first.");
       }
-    });
+    }
   </script>
+
 </body>
 </html>
