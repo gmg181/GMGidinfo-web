@@ -30,6 +30,7 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       width: 90%;
       max-width: 360px;
+      text-align: center;
     }
 
     label {
@@ -39,14 +40,27 @@
       color: #333;
     }
 
+    .custom-file-upload {
+      display: inline-block;
+      padding: 10px 15px;
+      background-color: #eee;
+      border-radius: 5px;
+      border: 2px dashed #ccc;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+      max-width: 300px;
+    }
+
     input[type="file"] {
-      margin-top: 8px;
+      display: none;
     }
 
     .filename-display {
       font-size: 14px;
       color: #555;
-      margin-top: 8px;
+      margin-top: 10px;
+      word-wrap: break-word;
     }
 
     input[type="number"], input[type="text"] {
@@ -95,11 +109,14 @@
 </head>
 <body>
   <h1>UID Changer by GMG</h1>
-  
+
   <div class="container">
     <form id="uploadForm" method="POST" enctype="multipart/form-data">
       <label>Upload Map File</label>
-      <input type="file" name="file" id="fileInput" accept=".bytes" required>
+      <label class="custom-file-upload">
+        📂 Choose File
+        <input type="file" name="file" id="fileInput" accept=".bytes" required>
+      </label>
       <div id="fileName" class="filename-display"></div>
     </form>
 
