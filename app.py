@@ -4,9 +4,9 @@ import tempfile
 from flask import Flask, request, render_template, send_file
 
 app = Flask(__name__)
-pattern = b'\x08\xb5\x01\x18\x01\x38'
+pattern = b'\x08\xb5\x01\x18\x01\x38'  # Your pattern to find UID
 
-# Varint decoding
+# Decode varint from hex string
 def decode_varint(hex_str):
     data = bytes.fromhex(hex_str)
     result = 0
@@ -18,7 +18,7 @@ def decode_varint(hex_str):
         shift += 7
     return result
 
-# Varint encoding
+# Encode int UID into varint (hex string)
 def encode_varint(uid: int) -> str:
     result = bytearray()
     while True:
@@ -67,6 +67,7 @@ def index():
 @app.route("/edit", methods=["POST"])
 def edit():
     new_uid = int(request.form["new_uid"])
+    slot_number = request.form.get("slot", "1")  # default = 1
     filename = request.form["filename"]
     file_path = os.path.join(tempfile.gettempdir(), filename)
 
@@ -88,11 +89,14 @@ def edit():
     new_varint = bytes.fromhex(encode_varint(new_uid))
     content[varint_start:varint_start+old_len] = new_varint
 
-    new_path = file_path.replace(".bytes", "_updated.bytes")
+    new_filename = f"ProjectData_slot_{slot_number}.bytes"
+    new_path = os.path.join(tempfile.gettempdir(), new_filename)
+
     with open(new_path, "wb") as f:
         f.write(content)
 
-    return send_file(new_path, as_attachment=True, download_name=os.path.basename(new_path))
+    return send_file(new_path, as_attachment=True, download_name=new_filename)
 
 if __name__ == "__main__":
     app.run(debug=True)
+    
