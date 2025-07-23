@@ -1,71 +1,148 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Craftland UID Editor</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      display: none; /* Hidden until password entered */
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
       min-height: 100vh;
-      background-color: #e53935;
+      background-color: #d32f2f;
       color: #fff;
-      padding-top: 40px;
+      padding-top: 50px;
+      margin: 0;
     }
 
     h1 {
-      text-align: center;
+      font-size: 28px;
       margin-bottom: 20px;
-      font-size: 24px;
+      text-align: center;
+      text-shadow: 1px 1px 4px #000;
     }
 
     form {
       background: #fff;
       color: #000;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      width: 340px;
+      padding: 30px 25px;
+      border-radius: 14px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+      width: 350px;
+      margin-top: 15px;
       text-align: center;
-      margin-top: 10px;
     }
 
-    input[type="file"] {
-      padding: 14px;
-      font-size: 18px;
-      background-color: #fff;
-      border: 2px solid #ccc;
-      border-radius: 8px;
-      width: 100%;
-      margin-bottom: 10px;
-    }
-
+    input[type="file"],
     input[type="number"],
     button {
       width: 100%;
-      padding: 10px;
-      margin-top: 12px;
+      padding: 12px;
+      margin-top: 14px;
       font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #bbb;
+      transition: all 0.3s ease;
+    }
+
+    input[type="file"]:hover,
+    input[type="number"]:hover,
+    button:hover {
+      border-color: #555;
+    }
+
+    button {
+      background-color: #d32f2f;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #b71c1c;
+    }
+
+    .filename-display {
+      margin-top: 10px;
+      font-size: 15px;
+      font-weight: bold;
+      color: #fff;
     }
 
     code {
       background-color: #eee;
-      padding: 2px 6px;
-      border-radius: 4px;
+      padding: 3px 6px;
+      border-radius: 5px;
     }
 
-    .filename-display {
-      margin-top: 8px;
-      font-size: 14px;
-      font-weight: bold;
-      color: #fff;
+    /* PASSWORD MODAL */
+    #passwordModal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    #passwordPrompt {
+      background: #fff;
+      color: #000;
+      padding: 30px 25px;
+      border-radius: 12px;
       text-align: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      width: 300px;
+    }
+
+    #passwordPrompt h2 {
+      margin-bottom: 15px;
+    }
+
+    #passwordPrompt input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    #passwordPrompt button {
+      margin-top: 12px;
+      padding: 10px;
+      width: 100%;
+      background-color: #d32f2f;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #passwordPrompt button:hover {
+      background-color: #b71c1c;
     }
   </style>
 </head>
 <body>
+
+  <!-- Password Modal -->
+  <div id="passwordModal">
+    <div id="passwordPrompt">
+      <h2>🔐 Enter Password</h2>
+      <input type="password" id="passwordInput" placeholder="Enter password..." />
+      <button onclick="checkPassword()">Unlock</button>
+    </div>
+  </div>
+
   <h1>🛠️ CRAFTLAND MAP FILE UID EDIT BY GMG</h1>
 
   <form id="uploadForm" method="POST" enctype="multipart/form-data">
@@ -74,33 +151,37 @@
   </form>
 
   {% if uid %}
-    <form method="POST" action="/edit">
-      <h3>✅ UID Found: <code>{{ uid }}</code></h3>
-      <input type="hidden" name="filename" value="{{ filename }}">
-      <input type="number" name="new_uid" value="{{ uid }}" required>
-      <button type="submit">🔁 Replace & Download</button>
-    </form>
+  <form method="POST" action="/edit">
+    <h3>✅ UID Found: <code>{{ uid }}</code></h3>
+    <input type="hidden" name="filename" value="{{ filename }}">
+    <input type="number" name="new_uid" value="{{ uid }}" required>
+    <button type="submit">🔁 Replace & Download</button>
+  </form>
   {% endif %}
 
   <script>
-    // PASSWORD PROTECTION
     const correctPassword = "ffkey420";
-    const entered = sessionStorage.getItem("authenticated");
 
-    if (entered !== correctPassword) {
-      const input = prompt("🔒 Enter password to access:");
-      if (input !== correctPassword) {
-        alert("❌ Incorrect password. Reload page to try again.");
-        document.body.innerHTML = ""; // Block content
-      } else {
+    function checkPassword() {
+      const input = document.getElementById("passwordInput").value;
+      if (input === correctPassword) {
         sessionStorage.setItem("authenticated", input);
-        document.body.style.display = "flex"; // Show content
+        document.getElementById("passwordModal").style.display = "none";
+        document.body.style.display = "flex";
+      } else {
+        alert("❌ Incorrect password.");
       }
-    } else {
-      document.body.style.display = "flex"; // Already authenticated
     }
 
-    // FILE INPUT DISPLAY
+    window.onload = function () {
+      const authenticated = sessionStorage.getItem("authenticated");
+      if (authenticated === correctPassword) {
+        document.getElementById("passwordModal").style.display = "none";
+        document.body.style.display = "flex";
+      }
+    };
+
+    // File input display
     const fileInput = document.getElementById("fileInput");
     const fileNameDiv = document.getElementById("fileName");
 
