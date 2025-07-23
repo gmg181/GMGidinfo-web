@@ -5,7 +5,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      display: none; /* Hidden until password entered */
+      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
@@ -32,16 +32,7 @@
       margin-top: 10px;
     }
 
-    input[type="file"] {
-      padding: 14px;
-      font-size: 18px;
-      background-color: #fff;
-      border: 2px solid #ccc;
-      border-radius: 8px;
-      width: 100%;
-      margin-bottom: 10px;
-    }
-
+    input[type="file"],
     input[type="number"],
     button {
       width: 100%;
@@ -77,13 +68,13 @@
     <form method="POST" action="/edit">
       <h3>✅ UID Found: <code>{{ uid }}</code></h3>
       <input type="hidden" name="filename" value="{{ filename }}">
-      <input type="number" name="new_uid" value="{{ uid }}" required>
+      <input type="number" name="new_uid" value="{{ uid }}" required placeholder="Enter New UID">
+      <input type="number" name="slot" min="1" max="9" required placeholder="Enter Slot Number (1-9)">
       <button type="submit">🔁 Replace & Download</button>
     </form>
   {% endif %}
 
   <script>
-    // PASSWORD PROTECTION
     const correctPassword = "ffkey420";
     const entered = sessionStorage.getItem("authenticated");
 
@@ -91,16 +82,15 @@
       const input = prompt("🔒 Enter password to access:");
       if (input !== correctPassword) {
         alert("❌ Incorrect password. Reload page to try again.");
-        document.body.innerHTML = ""; // Block content
+        document.body.innerHTML = "";
       } else {
         sessionStorage.setItem("authenticated", input);
-        document.body.style.display = "flex"; // Show content
+        document.body.style.display = "flex";
       }
     } else {
-      document.body.style.display = "flex"; // Already authenticated
+      document.body.style.display = "flex";
     }
 
-    // FILE INPUT DISPLAY
     const fileInput = document.getElementById("fileInput");
     const fileNameDiv = document.getElementById("fileName");
 
