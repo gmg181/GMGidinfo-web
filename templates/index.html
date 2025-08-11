@@ -7,13 +7,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url("https://cdn.jsdelivr.net/gh/starexxx/GFF@main/font.css");
-
         :root {
             --background-color: #000;
             --text-color: #fff;
+            --card-background: #000;
             --font-family: 'GFF Starexx', sans-serif;
         }
-
         body {
             background-color: var(--background-color);
             color: var(--text-color);
@@ -21,11 +20,10 @@
             margin: 0;
             padding: 0;
         }
-
         .header {
             width: 100%;
             padding: 10px;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0,0,0,0.9);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -33,17 +31,14 @@
             top: 0;
             z-index: 100;
         }
-
         .header-title {
             font-weight: bold;
         }
-
         .header-controls {
             display: flex;
             gap: 8px;
             align-items: center;
         }
-
         .header-controls input {
             padding: 6px 10px;
             border-radius: 5px;
@@ -53,56 +48,75 @@
             background: #111;
             color: white;
         }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 1px;
-            padding: 10px;
-        }
-
-        .icon-card {
-            background: rgba(0,0,0,0.6);
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .icon-card img {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 20px;
-            color: #888;
-        }
     </style>
 </head>
 <body>
-    <div class="header">
+    <!-- Header -->
+    <div class="header" id="header">
         <div class="header-title">GMG ITEMS</div>
         <div class="header-controls">
             <input type="text" id="search" placeholder="Search...">
             <input type="number" id="obFilter" placeholder="OB #">
         </div>
+        <div class="header-menu" id="menuButton"><i class="fas fa-bars"></i></div>
     </div>
 
-    <div class="grid-container" id="iconGrid"></div>
+    <!-- Filter tabs -->
+    <div class="filter-tabs" id="filterTabs"></div>
+
+    <!-- Main container -->
+    <div class="container" id="container" style="display:none;">
+        <div class="grid-container" id="iconGrid"></div>
+        <div class="pagination-container">
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-bg"></div>
+        <div class="modal-img-container" id="modalImgContainer">
+            <img id="modalTempImage" alt="Item Image">
+        </div>
+        <div class="modal-content">
+            <img id="modalImage" alt="Item Image">
+            <p><b id="modalDescription"></b><br><span id="modalDescription2"></span></p>
+            <div class="divider"></div>
+            <p><b>Item ID: </b><span id="modalItemId"></span><br><b>Icon: </b><span id="modalIconName"></span></p>
+            <div class="divider"></div>
+            <p><b></b><span id="modalType"></span>, <b></b><span id="modalRare"></span></p>
+            <button class="modal-close" onclick="closeModal()">Tap to close</button>
+        </div>
+    </div>
 
     <script>
         let iconsData = [];
         let filteredData = [];
-        const itemsPerPage = 100;
         let currentPage = 0;
+        const itemsPerPage = 100;
+        let uniqueFilters = {
+            itemType: new Set(),
+            Rare: new Set(),
+            collectionType: new Set()
+        };
+        let currentSort = 'id';
+        let currentTypeFilter = '';
+        let currentCollectionFilter = '';
+        let currentRarityFilter = '';
 
         document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(() => {
+                document.getElementById("container").style.display = "block";
+            }, 1000);
             fetchIcons();
+            document.getElementById("menuButton").addEventListener("click", toggleSidebar);
             document.getElementById("search").addEventListener("input", filterIcons);
             document.getElementById("obFilter").addEventListener("input", filterIcons);
         });
+
+        function toggleSidebar() {
+            alert("Sidebar toggle logic here if needed");
+        }
 
         async function fetchIcons() {
             try {
@@ -111,24 +125,32 @@
                 iconsData = data.map(item => ({
                     itemId: item["itemID"],
                     name: item["description"],
+                    iconName: item["icon"],
+                    description: item["description"],
+                    description2: item["description2"],
+                    itemType: item["itemType"] ? item["itemType"].replace(/_/g, ' ') : '',
+                    collectionType: item["collectionType"] ? item["collectionType"].replace(/_/g, ' ') : '',
+                    Rare: item["Rare"],
                     imageUrl: `https://raw.githubusercontent.com/I-SHOW-AKIRU200/AKIRU-ICONS/main/ICONS/${item["itemID"]}.png`
                 }));
                 filteredData = [...iconsData];
+                sortIcons();
                 renderIcons();
             } catch (error) {
-                console.error(error);
+                console.error("Failed to retrieve Icons:", error);
                 document.getElementById("iconGrid").innerHTML = `<div class="no-results">Error loading items</div>`;
             }
         }
 
-        function filterIcons() {
+        function applyFilters() {
             const searchQuery = document.getElementById("search").value.toLowerCase();
             const obValue = document.getElementById("obFilter").value.trim();
 
             filteredData = iconsData.filter(item => {
                 const matchesSearch = searchQuery === '' || 
                     item.name.toLowerCase().includes(searchQuery) ||
-                    item.itemId.toString().includes(searchQuery);
+                    item.itemId.toString().includes(searchQuery) ||
+                    item.iconName.toLowerCase().includes(searchQuery);
 
                 let matchesOB = true;
                 if (obValue !== '') {
@@ -140,11 +162,24 @@
                     }
                 }
 
-                return matchesSearch && matchesOB;
+                const matchesType = !currentTypeFilter || item.itemType === currentTypeFilter;
+                const matchesRare = !currentRarityFilter || item.Rare === currentRarityFilter;
+                const matchesCollection = !currentCollectionFilter || item.collectionType === currentCollectionFilter;
+
+                return matchesSearch && matchesOB && matchesType && matchesRare && matchesCollection;
             });
 
+            sortIcons();
             currentPage = 0;
             renderIcons();
+        }
+
+        function sortIcons() {
+            if (currentSort === 'name') {
+                filteredData.sort((a, b) => a.name.localeCompare(b.name));
+            } else {
+                filteredData.sort((a, b) => a.itemId - b.itemId);
+            }
         }
 
         function renderIcons() {
@@ -163,6 +198,7 @@
             visibleIcons.forEach(icon => {
                 const card = document.createElement("div");
                 card.className = "icon-card";
+                card.onclick = () => openModal(icon.name, icon.itemId, icon.iconName, icon.imageUrl, icon.description, icon.description2, icon.itemType, icon.Rare);
                 const img = document.createElement("img");
                 img.src = icon.imageUrl;
                 img.alt = icon.name;
@@ -172,6 +208,25 @@
                 card.appendChild(img);
                 grid.appendChild(card);
             });
+        }
+
+        function filterIcons() {
+            applyFilters();
+        }
+
+        function openModal(name, itemId, iconName, imageUrl, description, description2, itemType, rare) {
+            document.getElementById("modalDescription").textContent = description || "No description available";
+            document.getElementById("modalDescription2").textContent = description2 || "No additional description";
+            document.getElementById("modalItemId").textContent = itemId || "Unknown";
+            document.getElementById("modalIconName").textContent = iconName || "Unknown";
+            document.getElementById("modalType").textContent = itemType || "Unknown";
+            document.getElementById("modalRare").textContent = rare || "Unknown";
+            document.getElementById("modalImage").src = imageUrl;
+            document.getElementById("modal").classList.add("show");
+        }
+
+        function closeModal() {
+            document.getElementById("modal").classList.remove("show");
         }
     </script>
 </body>
