@@ -723,7 +723,7 @@
 
         async function fetchIcons() {
             try {
-                const response = await fetch("https://raw.githubusercontent.com/gmg181/Gmg-item/assets/itemData.json");
+                const response = await fetch("https://raw.githubusercontent.com/gmg181/Gmg-item/19d339b0ec202ed4362128b91d51ec63b6ebfa73/assets/itemData.json");
                 const data = await response.json();
 
                 iconsData = data.map(item => ({
@@ -735,7 +735,7 @@
                     itemType: item["itemType"] ? item["itemType"].replace(/_/g, ' ') : '',
                     collectionType: item["collectionType"] ? item["collectionType"].replace(/_/g, ' ') : '',
                     Rare: item["Rare"],
-                    imageUrl: `https://raw.githubusercontent.com/usggffgg/GMG-ICONS/main/ICONS/${item["itemID"]}.png`
+                    imageUrl: `https://raw.githubusercontent.com/usggffgg/GMG-ICONS/main/ICONS/{item["itemID"]}.png`
                 }));
 
                 iconsData.forEach(item => {
