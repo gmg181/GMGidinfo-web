@@ -1,87 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free Fire Vault</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Free Fire Vault – Item Finder</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #111; color: #fff; }
-    header { background: #222; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
-    header h1 { font-size: 20px; margin: 0; }
-    .search-bar { flex: 1; margin: 0 10px; }
-    .search-bar input { width: 100%; padding: 8px; border-radius: 5px; border: none; }
-    .filters { display: flex; gap: 10px; }
-    .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; padding: 15px; }
-    .item-card { background: #1c1c1c; padding: 8px; border-radius: 10px; text-align: center; cursor: pointer; transition: transform 0.2s; }
-    .item-card:hover { transform: scale(1.05); }
-    .item-card img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 5px; }
-    .item-card h3 { font-size: 13px; margin: 3px 0; }
-    .item-card p { font-size: 11px; color: #aaa; margin: 0; }
-    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; }
-    .modal-content { background: #222; padding: 20px; border-radius: 10px; max-width: 400px; text-align: center; }
-    .modal-content img { width: 100%; max-height: 250px; object-fit: contain; margin-bottom: 10px; }
-    .close { cursor: pointer; font-size: 18px; float: right; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .search-box {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .search-box input {
+      width: 300px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+    }
+    .item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    .item:hover {
+      transform: translateY(-5px);
+    }
+    .item img {
+      width: 60px;   /* 👈 PNG icons chhote kiye */
+      height: 60px;
+      object-fit: contain;
+      margin-bottom: 8px;
+    }
+    .item-name {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Free Fire Vault</h1>
-    <div class="search-bar"><input type="text" id="search" placeholder="Search items..."></div>
-  </header>
-
-  <div class="container" id="items-container"></div>
-
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <span class="close" id="close">&times;</span>
-      <img id="modal-image" src="">
-      <h2 id="modal-title"></h2>
-      <p id="modal-desc"></p>
-    </div>
+  <h1>🎮 Free Fire Vault – Item Finder</h1>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search item...">
   </div>
-
-  <script id="items-json" type="application/json">
-    [
-      {"id":1, "name":"Katana Flame", "desc":"Fiery blade.", "icon":"katana_flame", "image":"https://via.placeholder.com/300x200?text=Katana+Flame"},
-      {"id":2, "name":"Bundle Warrior", "desc":"Complete set.", "icon":"bundle_warrior", "image":"https://via.placeholder.com/300x200?text=Bundle+Warrior"},
-      {"id":3, "name":"Emote Dance", "desc":"Special move.", "icon":"emote_dance", "image":"https://via.placeholder.com/300x200?text=Emote+Dance"}
-    ]
-  </script>
+  <div class="grid" id="itemGrid"></div>
 
   <script>
-    const items = JSON.parse(document.getElementById('items-json').textContent);
-    const container = document.getElementById('items-container');
-    const searchInput = document.getElementById('search');
-    const modal = document.getElementById('modal');
-    const modalImage = document.getElementById('modal-image');
-    const modalTitle = document.getElementById('modal-title');
-    const modalDesc = document.getElementById('modal-desc');
-    const closeBtn = document.getElementById('close');
+    const items = [
+      { name: "Legendary Gun", icon: "icons/gun.png" },
+      { name: "Golden Bundle", icon: "icons/bundle.png" },
+      { name: "Magic Cube", icon: "icons/cube.png" },
+      { name: "Diamond Pack", icon: "icons/diamond.png" },
+      { name: "Epic Outfit", icon: "icons/outfit.png" }
+    ];
 
-    function displayItems(list) {
-      container.innerHTML = '';
-      list.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'item-card';
-        card.innerHTML = `<img src="${item.image}" alt="${item.name}"><h3>${item.name}</h3><p>${item.icon}</p>`;
-        card.onclick = () => openModal(item);
-        container.appendChild(card);
+    const itemGrid = document.getElementById("itemGrid");
+    const searchInput = document.getElementById("searchInput");
+
+    function displayItems(filteredItems) {
+      itemGrid.innerHTML = "";
+      filteredItems.forEach(item => {
+        const div = document.createElement("div");
+        div.classList.add("item");
+        div.innerHTML = `
+          <img src="${item.icon}" alt="${item.name}">
+          <div class="item-name">${item.name}</div>
+        `;
+        itemGrid.appendChild(div);
       });
     }
 
-    function openModal(item) {
-      modal.style.display = 'flex';
-      modalImage.src = item.image;
-      modalTitle.textContent = item.name;
-      modalDesc.textContent = item.desc;
-    }
-
-    closeBtn.onclick = () => modal.style.display = 'none';
-    window.onclick = (e) => { if(e.target == modal) modal.style.display = 'none'; }
-
-    searchInput.addEventListener('input', () => {
-      const q = searchInput.value.toLowerCase();
-      displayItems(items.filter(i => i.name.toLowerCase().includes(q) || i.icon.toLowerCase().includes(q)));
+    searchInput.addEventListener("input", e => {
+      const value = e.target.value.toLowerCase();
+      const filtered = items.filter(i => i.name.toLowerCase().includes(value));
+      displayItems(filtered);
     });
 
     displayItems(items);
